@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <title>TVITA2000</title>
 
+<!-- YOUTUBE IFRAME API -->
+<script src="https://www.youtube.com/iframe_api"></script>
+
 <style>
 body {
 margin: 0;
@@ -32,19 +35,12 @@ font-size: 20px;
 cursor: pointer;
 }
 
-/* PLAYER AREA */
+/* PLAYER */
 #player {
 width: 100vw;
 height: 100vh;
 display: none;
 background: black;
-position: relative;
-}
-
-#player iframe {
-width: 100%;
-height: 100%;
-border: none;
 }
 
 /* CONTROLS */
@@ -60,7 +56,7 @@ padding: 10px 20px;
 cursor: pointer;
 }
 
-/* GLITCH EFFECT */
+/* GLITCH */
 #glitch {
 position: absolute;
 width: 100%;
@@ -75,7 +71,7 @@ z-index: 15;
 
 <body>
 
-<!-- START SCREEN -->
+<!-- START -->
 <div id="startScreen">
 <h1>TVITA2000</h1>
 <button id="startBtn">START TV</button>
@@ -84,14 +80,8 @@ z-index: 15;
 <!-- GLITCH -->
 <div id="glitch"></div>
 
-<!-- PLAYER -->
-<div id="player">
-<iframe
-id="ytplayer"
-allow="autoplay; encrypted-media; fullscreen"
-allowfullscreen>
-</iframe>
-</div>
+<!-- PLAYER (API controlla questo div) -->
+<div id="player"></div>
 
 <!-- CONTROLS -->
 <div id="controls">
@@ -101,25 +91,43 @@ allowfullscreen>
 <script>
 
 let playlist = [];
-let currentVideo = null;
-
 let recentVideos = [];
 const MAX_HISTORY = 5;
 
 let isStarted = false;
+let player;
 
-const API_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AUkAhnS6BBtyQFuwHO7NFwOnoh3dYDhM9GK0WxBYU8SQIo9Cp7czAHmpJR1ZSA_R09zdPW6muuYjyuZfjeHB2h-zDsW4DXeOrl7URYfHstijVTSTCU7SJPJlci1wt6WvEIYI0N8mvh_mqtgpOPFsI-8wYqZkydN2OIXfY2M1GK_0tWSIzOJqgmDo05bG40YzI5kohYfnr-q1mdBZNkam08wxNPhyPiC7ipuPk7IxgjMFuFC8hSJG70RWNZ9di_x47AUhdO98aGSgEQJKozTYDMLfo_AuuQ85eA&lib=Mx2bH8SXqni6gioWW51Nzuxv87HI9RohF";
+const API_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AUkAhnS6BBtyQFuwHO7NFwOnoh3dYDhM9GK0WxBYU8SQIo9Cp7czAHmpJR1ZSA_R09zdPW6muuYjyuZfjeHB2h-zDsW4DXeOrl7URYfHstijVTSTCU7SJPJlci1wt6WvEIYI0N8mvh_mqtgpOPFsI-8wYqZkydN2OIXfY2M1GK_0tWSIzOJqgmDo05bG40YzI5kohYfnr-q1mdBZNkam08wxNPhyPiC7ipuPk7IxgjMFuFC8hSJG70RWNZ9di_x47AUhdO98aGSgEQJKozTYDMLfo_AuuQ85aE&lib=Mx2bH8SXqni6gioWW51Nzuxv87HI9RohF";
 
-const playerDiv = document.getElementById("player");
-const iframe = document.getElementById("ytplayer");
-const glitch = document.getElementById("glitch");
+/* YOUTUBE API READY */
+function onYouTubeIframeAPIReady() {
+player = new YT.Player("player", {
+height: "100%",
+width: "100%",
+videoId: "",
+playerVars: {
+autoplay: 1,
+controls: 0,
+rel: 0,
+playsinline: 1
+}
+});
+}
+
+/* AUDIO UNLOCK */
+function unlockAudio() {
+try {
+player.unMute();
+player.setVolume(100);
+} catch (e) {}
+}
 
 /* GLITCH EFFECT */
 function showGlitch(callback) {
-glitch.style.display = "block";
+document.getElementById("glitch").style.display = "block";
 
 setTimeout(() => {
-glitch.style.display = "none";
+document.getElementById("glitch").style.display = "none";
 callback();
 }, 250);
 }
@@ -147,7 +155,7 @@ return video;
 }
 
 /* EXTRACT ID */
-function convertToVideoId(url) {
+function getVideoId(url) {
 if (!url) return "";
 
 if (url.includes("watch?v=")) {
@@ -161,19 +169,15 @@ return url.split("youtu.be/")[1].split("?")[0];
 return "";
 }
 
-/* LOAD VIDEO (FIX CORE) */
+/* LOAD VIDEO (PRO ENGINE) */
 function loadVideo(video) {
 if (!video || !video.videoUrl) return;
 
-currentVideo = video;
+const id = getVideoId(video.videoUrl);
 
-const videoId = convertToVideoId(video.videoUrl);
+player.loadVideoById(id);
 
-/* IMPORTANTISSIMO: NON ricreiamo iframe */
-iframe.src =
-"https://www.youtube.com/embed/" +
-videoId +
-"?autoplay=1&rel=0&playsinline=1&enablejsapi=1";
+unlockAudio();
 }
 
 /* NEXT VIDEO */
@@ -188,18 +192,17 @@ loadVideo(video);
 });
 }
 
-/* START */
+/* START TV */
 document.getElementById("startBtn").addEventListener("click", () => {
 
 document.getElementById("startScreen").style.display = "none";
-playerDiv.style.display = "block";
+document.getElementById("player").style.display = "block";
 
 isStarted = true;
 
-/* preload iniziale */
-if (playlist.length > 0) {
-nextVideo();
-}
+setTimeout(() => {
+if (playlist.length > 0) nextVideo();
+}, 500);
 });
 
 /* SKIP */
@@ -213,9 +216,7 @@ fetch(API_URL)
 .then(data => {
 playlist = data || [];
 
-if (isStarted) {
-nextVideo();
-}
+if (isStarted) nextVideo();
 })
 .catch(err => {
 console.error("API error", err);
