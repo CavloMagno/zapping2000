@@ -89,7 +89,7 @@ const API_URL = "https://script.google.com/macros/s/AKfycbys6e7t9KEClY9bscGjAW1L
 /* =========================
 YOUTUBE API READY
 ========================= */
-function onYouTubeIframeAPIReady() {
+window.onYouTubeIframeAPIReady = function () {
 
 player = new YT.Player("player", {
 height: "100%",
