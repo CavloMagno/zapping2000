@@ -104,7 +104,15 @@ events: {
 onReady: () => {
 playerReady = true;
 console.log("PLAYER READY");
-}
+},
+ onStateChange: (event) => {
+
+    if (!playerReady || !isStarted) return;
+
+    if (event.data === YT.PlayerState.ENDED) {
+      nextVideo();
+	 }
+}	 
 }
 });
 }
