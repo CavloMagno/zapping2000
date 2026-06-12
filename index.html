@@ -90,6 +90,7 @@ const API_URL = "https://script.google.com/macros/s/AKfycbys6e7t9KEClY9bscGjAW1L
 YOUTUBE API READY
 ========================= */
 function onYouTubeIframeAPIReady() {
+
 player = new YT.Player("player", {
 height: "100%",
 width: "100%",
@@ -101,88 +102,51 @@ rel: 0,
 playsinline: 1
 },
 events: {
+
 onReady: () => {
+
 playerReady = true;
 console.log("PLAYER READY");
-}
-}
-});
-}
 
-/* =========================
-AUDIO FIX
-========================= */
-function unlockAudio() {
-if (!playerReady) return;
-try {
-player.unMute();
-player.setVolume(100);
-} catch (e) {}
+if (isStarted && playlist.length > 0) {
+nextVideo();
 }
 
-/* =========================
-RANDOM VIDEO
-========================= */
-function getRandomVideo() {
-if (!playlist || playlist.length === 0) return null;
+},
 
-let filtered = playlist.filter(v =>
-v.videoUrl && !recentVideos.includes(v.videoUrl)
-);
+onStateChange: (event) => {
 
-if (filtered.length === 0) {
-recentVideos = [];
-filtered = playlist;
-}
-
-const video = filtered[Math.floor(Math.random() * filtered.length)];
-
-recentVideos.push(video.videoUrl);
-if (recentVideos.length > MAX_HISTORY) recentVideos.shift();
-
-return video;
-}
-
-/* =========================
-EXTRACT ID
-========================= */
-function getVideoId(url) {
-if (!url) return "";
-
-if (url.includes("watch?v=")) {
-return url.split("watch?v=")[1].split("&")[0];
-}
-
-if (url.includes("youtu.be/")) {
-return url.split("youtu.be/")[1].split("?")[0];
-}
-
-return "";
-}
-
-/* =========================
-LOAD VIDEO (SAFE)
+if (event.data === YT.PlayerState.ENDED) {
+nextVideo();
 ========================= */
 function loadVideo(video) {
+
 if (!video || !video.videoUrl) return;
 if (!playerReady) return;
 
 const id = getVideoId(video.videoUrl);
 
+if (!id) return;
+
 player.loadVideoById(id);
+
 unlockAudio();
+
 }
 
 /* =========================
 NEXT VIDEO
 ========================= */
 function nextVideo() {
+
 if (!isStarted) return;
 
 const video = getRandomVideo();
+
 if (!video) return;
 
 loadVideo(video);
+
 }
 
 /* =========================
@@ -195,11 +159,12 @@ document.getElementById("player").style.display = "block";
 
 isStarted = true;
 
-setTimeout(() => {
-if (playlist.length > 0 && playerReady) {
+if (playerReady && playlist.length > 0) {
 nextVideo();
 }
-}, 800);
+
+unlockAudio();
+
 });
 
 /* =========================
