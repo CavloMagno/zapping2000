@@ -12,6 +12,7 @@ font-family: Arial, sans-serif;
 overflow: hidden;
 }
 
+/* START SCREEN */
 #startScreen {
 position: absolute;
 width: 100%;
@@ -31,14 +32,22 @@ font-size: 20px;
 cursor: pointer;
 }
 
+/* PLAYER AREA */
 #player {
 width: 100vw;
 height: 100vh;
 display: none;
 background: black;
-
+position: relative;
 }
 
+#player iframe {
+width: 100%;
+height: 100%;
+border: none;
+}
+
+/* CONTROLS */
 #controls {
 position: absolute;
 bottom: 20px;
@@ -51,6 +60,7 @@ padding: 10px 20px;
 cursor: pointer;
 }
 
+/* GLITCH EFFECT */
 #glitch {
 position: absolute;
 width: 100%;
@@ -65,15 +75,25 @@ z-index: 15;
 
 <body>
 
+<!-- START SCREEN -->
 <div id="startScreen">
 <h1>TVITA2000</h1>
 <button id="startBtn">START TV</button>
 </div>
 
+<!-- GLITCH -->
 <div id="glitch"></div>
 
-<div id="player"></div>
+<!-- PLAYER -->
+<div id="player">
+<iframe
+id="ytplayer"
+allow="autoplay; encrypted-media; fullscreen"
+allowfullscreen>
+</iframe>
+</div>
 
+<!-- CONTROLS -->
 <div id="controls">
 <button id="skipBtn">Cambia Canale</button>
 </div>
@@ -91,8 +111,10 @@ let isStarted = false;
 const API_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AUkAhnS6BBtyQFuwHO7NFwOnoh3dYDhM9GK0WxBYU8SQIo9Cp7czAHmpJR1ZSA_R09zdPW6muuYjyuZfjeHB2h-zDsW4DXeOrl7URYfHstijVTSTCU7SJPJlci1wt6WvEIYI0N8mvh_mqtgpOPFsI-8wYqZkydN2OIXfY2M1GK_0tWSIzOJqgmDo05bG40YzI5kohYfnr-q1mdBZNkam08wxNPhyPiC7ipuPk7IxgjMFuFC8hSJG70RWNZ9di_x47AUhdO98aGSgEQJKozTYDMLfo_AuuQ85eA&lib=Mx2bH8SXqni6gioWW51Nzuxv87HI9RohF";
 
 const playerDiv = document.getElementById("player");
+const iframe = document.getElementById("ytplayer");
 const glitch = document.getElementById("glitch");
 
+/* GLITCH EFFECT */
 function showGlitch(callback) {
 glitch.style.display = "block";
 
@@ -102,6 +124,7 @@ callback();
 }, 250);
 }
 
+/* RANDOM VIDEO */
 function getRandomVideo() {
 if (!playlist || playlist.length === 0) return null;
 
@@ -123,38 +146,37 @@ recentVideos.shift();
 return video;
 }
 
-function convertToEmbed(url) {
+/* EXTRACT ID */
+function convertToVideoId(url) {
 if (!url) return "";
 
-let videoId = "";
-
 if (url.includes("watch?v=")) {
-videoId = url.split("watch?v=")[1].split("&")[0];
-} else if (url.includes("youtu.be/")) {
-videoId = url.split("youtu.be/")[1].split("?")[0];
+return url.split("watch?v=")[1].split("&")[0];
 }
 
-return "https://www.youtube.com/embed/" +
-videoId +
-"?autoplay=1&mute=1&playsinline=1&enablejsapi=1";
+if (url.includes("youtu.be/")) {
+return url.split("youtu.be/")[1].split("?")[0];
 }
 
+return "";
+}
+
+/* LOAD VIDEO (FIX CORE) */
 function loadVideo(video) {
 if (!video || !video.videoUrl) return;
 
 currentVideo = video;
 
-// IMPORTANTISSIMO: evita black screen percepito
-playerDiv.innerHTML = `
-<iframe width="100%" height="100%"
-src="${convertToEmbed(video.videoUrl)}"
-frameborder="0"
-allow="autoplay; encrypted-media; fullscreen"
-allowfullscreen>
-</iframe>
-`;
+const videoId = convertToVideoId(video.videoUrl);
+
+/* IMPORTANTISSIMO: NON ricreiamo iframe */
+iframe.src =
+"https://www.youtube.com/embed/" +
+videoId +
+"?autoplay=1&rel=0&playsinline=1&enablejsapi=1";
 }
 
+/* NEXT VIDEO */
 function nextVideo() {
 if (!isStarted) return;
 
@@ -166,7 +188,7 @@ loadVideo(video);
 });
 }
 
-// START
+/* START */
 document.getElementById("startBtn").addEventListener("click", () => {
 
 document.getElementById("startScreen").style.display = "none";
@@ -174,18 +196,18 @@ playerDiv.style.display = "block";
 
 isStarted = true;
 
-// preload iniziale
+/* preload iniziale */
 if (playlist.length > 0) {
 nextVideo();
 }
 });
 
-// SKIP
+/* SKIP */
 document.getElementById("skipBtn").addEventListener("click", () => {
 nextVideo();
 });
 
-// FETCH PLAYLIST
+/* FETCH PLAYLIST */
 fetch(API_URL)
 .then(res => res.json())
 .then(data => {
