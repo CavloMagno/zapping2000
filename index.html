@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>TVITA2000</title>
+
+<style>
+body {
+margin: 0;
+background: black;
+font-family: Arial, sans-serif;
+overflow: hidden;
+}
+
+#startScreen {
+position: absolute;
+width: 100%;
+height: 100%;
+background: black;
+display: flex;
+justify-content: center;
+align-items: center;
+color: white;
+flex-direction: column;
+z-index: 10;
+}
+
+#startBtn {
+padding: 20px 40px;
+font-size: 20px;
+cursor: pointer;
+}
+
+#player {
+width: 100vw;
+height: 100vh;
+display: none;
+}
+
+#controls {
+position: absolute;
+bottom: 20px;
+left: 20px;
+z-index: 20;
+}
+
+#skipBtn {
+padding: 10px 20px;
+cursor: pointer;
+}
+
+#glitch {
+position: absolute;
+width: 100%;
+height: 100%;
+background: black;
+display: none;
+z-index: 15;
+}
+</style>
+
+</head>
+
+<body>
+
+<div id="startScreen">
+<h1>TVITA2000</h1>
+<button id="startBtn">START TV</button>
+</div>
+
+<div id="glitch"></div>
+
+<div id="player"></div>
+
+<div id="controls">
+<button id="skipBtn">Cambia Canale</button>
+</div>
+
+<script>
+
+let playlist = [];
+let currentVideo = null;
+
+let recentVideos = [];
+const MAX_HISTORY = 5;
+
+let isStarted = false;
+
+const API_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AUkAhnS6BBtyQFuwHO7NFwOnoh3dYDhM9GK0WxBYU8SQIo9Cp7czAHmpJR1ZSA_R09zdPW6muuYjyuZfjeHB2h-zDsW4DXeOrl7URYfHstijVTSTCU7SJPJlci1wt6WvEIYI0N8mvh_mqtgpOPFsI-8wYqZkydN2OIXfY2M1GK_0tWSIzOJqgmDo05bG40YzI5kohYfnr-q1mdBZNkam08wxNPhyPiC7ipuPk7IxgjMFuFC8hSJG70RWNZ9di_x47AUhdO98aGSgEQJKozTYDMLfo_AuuQ85eA&lib=Mx2bH8SXqni6gioWW51Nzuxv87HI9RohF";
+
+const playerDiv = document.getElementById("player");
+const glitch = document.getElementById("glitch");
+
+function showGlitch(callback) {
+glitch.style.display = "block";
+
+setTimeout(() => {
+glitch.style.display = "none";
+callback();
+}, 500);
+}
+
+function getRandomVideo() {
+if (!playlist || playlist.length === 0) return null;
+
+let filtered = playlist.filter(v => v.videoUrl && !recentVideos.includes(v.videoUrl));
+
+if (filtered.length === 0) {
+recentVideos = [];
+filtered = playlist;
+}
+
+const video = filtered[Math.floor(Math.random() * filtered.length)];
+
+recentVideos.push(video.videoUrl);
+
+if (recentVideos.length > MAX_HISTORY) {
+recentVideos.shift();
+}
+
+return video;
+}
+
+function convertToEmbed(url) {
+if (!url) return "";
+
+let videoId = "";
+
+if (url.includes("watch?v=")) {
+videoId = url.split("watch?v=")[1].split("&")[0];
+} else if (url.includes("youtu.be/")) {
+videoId = url.split("youtu.be/")[1].split("?")[0];
+}
+
+return "https://www.youtube.com/embed/" + videoId + "?autoplay=1&enablejsapi=1";
+}
+
+function loadVideo(video) {
+if (!video || !video.videoUrl) return;
+
+currentVideo = video;
+
+playerDiv.innerHTML = `
+<iframe width="100%" height="100%"
+src="${convertToEmbed(video.videoUrl)}"
+frameborder="0"
+allow="autoplay; encrypted-media"
+allowfullscreen>
+</iframe>
+`;
+}
+
+function nextVideo() {
+if (!isStarted) return;
+
+showGlitch(() => {
+const video = getRandomVideo();
+if (!video) return;
+loadVideo(video);
+});
+}
+
+// START TV
+document.getElementById("startBtn").addEventListener("click", () => {
+
+document.getElementById("startScreen").style.display = "none";
+playerDiv.style.display = "block";
+
+isStarted = true;
+
+// se playlist già pronta → parte subito
+if (playlist.length > 0) {
+nextVideo();
+}
+
+});
+
+// SKIP
+document.getElementById("skipBtn").addEventListener("click", () => {
+nextVideo();
+});
+
+// FETCH PLAYLIST
+fetch(API_URL)
+.then(res => res.json())
+.then(data => {
+playlist = data || [];
+
+if (isStarted) {
+nextVideo();
+}
+})
+.catch(err => {
+console.error("API error", err);
+playlist = [];
+});
+
+</script>
+
+</body>
+</html>
