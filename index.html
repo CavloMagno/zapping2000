@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <title>TVITA2000</title>
 
-<!-- YOUTUBE IFRAME API -->
 <script src="https://www.youtube.com/iframe_api"></script>
 
 <style>
@@ -55,16 +54,6 @@ z-index: 20;
 padding: 10px 20px;
 cursor: pointer;
 }
-
-/* GLITCH */
-#glitch {
-position: absolute;
-width: 100%;
-height: 100%;
-background: black;
-display: none;
-z-index: 15;
-}
 </style>
 
 </head>
@@ -77,10 +66,7 @@ z-index: 15;
 <button id="startBtn">START TV</button>
 </div>
 
-<!-- GLITCH -->
-<div id="glitch"></div>
-
-<!-- PLAYER (API controlla questo div) -->
+<!-- PLAYER -->
 <div id="player"></div>
 
 <!-- CONTROLS -->
@@ -95,11 +81,14 @@ let recentVideos = [];
 const MAX_HISTORY = 5;
 
 let isStarted = false;
-let player;
+let player = null;
+let playerReady = false;
 
-const API_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AUkAhnS6BBtyQFuwHO7NFwOnoh3dYDhM9GK0WxBYU8SQIo9Cp7czAHmpJR1ZSA_R09zdPW6muuYjyuZfjeHB2h-zDsW4DXeOrl7URYfHstijVTSTCU7SJPJlci1wt6WvEIYI0N8mvh_mqtgpOPFsI-8wYqZkydN2OIXfY2M1GK_0tWSIzOJqgmDo05bG40YzI5kohYfnr-q1mdBZNkam08wxNPhyPiC7ipuPk7IxgjMFuFC8hSJG70RWNZ9di_x47AUhdO98aGSgEQJKozTYDMLfo_AuuQ85aE&lib=Mx2bH8SXqni6gioWW51Nzuxv87HI9RohF";
+const API_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AUkAhnS6BBtyQFuwHO7NFwOnoh3dYDhM9GK0WxBYU8SQIo9Cp7czAHmpJR1ZSA_R09zdPW6muuYjyuZfjeHB2h-zDsW4DXeOrl7URYfHstijVTSTCU7SJPJlci1wt6WvEIYI0N8mvh_mqtgpOPFsI-8wYqZkydN2OIXfY2M1GK_0tWSIzOJqgmDo05bG40YzI5kohYfnr-q1mdBZNkam08wxNPhyPiC7ipuPk7IxgjMFuFC8hSJG70RWNZ9di_x47AUhdO98aGSgEQJKozTYDMLfo_AuuQ85eA&lib=Mx2bH8SXqni6gioWW51Nzuxv87HI9RohF";
 
-/* YOUTUBE API READY */
+/* =========================
+YOUTUBE API READY
+========================= */
 function onYouTubeIframeAPIReady() {
 player = new YT.Player("player", {
 height: "100%",
@@ -110,33 +99,36 @@ autoplay: 1,
 controls: 0,
 rel: 0,
 playsinline: 1
+},
+events: {
+onReady: () => {
+playerReady = true;
+console.log("PLAYER READY");
+}
 }
 });
 }
 
-/* AUDIO UNLOCK */
+/* =========================
+AUDIO FIX
+========================= */
 function unlockAudio() {
+if (!playerReady) return;
 try {
 player.unMute();
 player.setVolume(100);
 } catch (e) {}
 }
 
-/* GLITCH EFFECT */
-function showGlitch(callback) {
-document.getElementById("glitch").style.display = "block";
-
-setTimeout(() => {
-document.getElementById("glitch").style.display = "none";
-callback();
-}, 250);
-}
-
-/* RANDOM VIDEO */
+/* =========================
+RANDOM VIDEO
+========================= */
 function getRandomVideo() {
 if (!playlist || playlist.length === 0) return null;
 
-let filtered = playlist.filter(v => v.videoUrl && !recentVideos.includes(v.videoUrl));
+let filtered = playlist.filter(v =>
+v.videoUrl && !recentVideos.includes(v.videoUrl)
+);
 
 if (filtered.length === 0) {
 recentVideos = [];
@@ -146,15 +138,14 @@ filtered = playlist;
 const video = filtered[Math.floor(Math.random() * filtered.length)];
 
 recentVideos.push(video.videoUrl);
-
-if (recentVideos.length > MAX_HISTORY) {
-recentVideos.shift();
-}
+if (recentVideos.length > MAX_HISTORY) recentVideos.shift();
 
 return video;
 }
 
-/* EXTRACT ID */
+/* =========================
+EXTRACT ID
+========================= */
 function getVideoId(url) {
 if (!url) return "";
 
@@ -169,30 +160,34 @@ return url.split("youtu.be/")[1].split("?")[0];
 return "";
 }
 
-/* LOAD VIDEO (PRO ENGINE) */
+/* =========================
+LOAD VIDEO (SAFE)
+========================= */
 function loadVideo(video) {
 if (!video || !video.videoUrl) return;
+if (!playerReady) return;
 
 const id = getVideoId(video.videoUrl);
 
 player.loadVideoById(id);
-
 unlockAudio();
 }
 
-/* NEXT VIDEO */
+/* =========================
+NEXT VIDEO
+========================= */
 function nextVideo() {
 if (!isStarted) return;
 
 const video = getRandomVideo();
 if (!video) return;
 
-showGlitch(() => {
 loadVideo(video);
-});
 }
 
-/* START TV */
+/* =========================
+START TV
+========================= */
 document.getElementById("startBtn").addEventListener("click", () => {
 
 document.getElementById("startScreen").style.display = "none";
@@ -201,22 +196,26 @@ document.getElementById("player").style.display = "block";
 isStarted = true;
 
 setTimeout(() => {
-if (playlist.length > 0) nextVideo();
-}, 500);
+if (playlist.length > 0 && playerReady) {
+nextVideo();
+}
+}, 800);
 });
 
-/* SKIP */
+/* =========================
+SKIP
+========================= */
 document.getElementById("skipBtn").addEventListener("click", () => {
 nextVideo();
 });
 
-/* FETCH PLAYLIST */
+/* =========================
+FETCH PLAYLIST
+========================= */
 fetch(API_URL)
 .then(res => res.json())
 .then(data => {
 playlist = data || [];
-
-if (isStarted) nextVideo();
 })
 .catch(err => {
 console.error("API error", err);
