@@ -108,6 +108,7 @@ controls: 0,
 rel: 0,
 playsinline: 1
 },
+
 events: {
 onReady: () => {
 playerReady = true;
@@ -118,28 +119,13 @@ onStateChange: (event) => {
 
 if (!playerReady || !isStarted) return;
 
-if (event.data === YT.PlayerState.PLAYING) {
-clearTimeout(endTimer);
-
-const duration = player.getDuration();
-
-if (duration > 0) {
-endTimer = setTimeout(() => {
-if (player.getPlayerState() === YT.PlayerState.PLAYING) {
-nextVideo();
-}
-}, duration * 1000 + 1000);
-}
-}
-
 if (event.data === YT.PlayerState.ENDED) {
-clearTimeout(endTimer);
 nextVideo();
 }
 
 }
 }
-
+});
 
 /* =========================
 AUDIO FIX
