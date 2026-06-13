@@ -91,7 +91,7 @@ const MAX_HISTORY = 5;
 let isStarted = false;
 let player = null;
 let playerReady = false;
-
+let endTimer = null;
 const API_URL = "https://script.google.com/macros/s/AKfycbys6e7t9KEClY9bscGjAW1L0I5fZgpriDy9IRhp4fbh4k5pXWg-RzY0CtkFb50IvAAR/exec";
 
 /* =========================
@@ -113,17 +113,33 @@ onReady: () => {
 playerReady = true;
 console.log("PLAYER READY");
 },
- onStateChange: (event) => {
 
-    if (!playerReady || !isStarted) return;
+onStateChange: (event) => {
 
-    if (event.data === YT.PlayerState.ENDED) {
-      nextVideo();
-	 }
-}	 
+if (!playerReady || !isStarted) return;
+
+if (event.data === YT.PlayerState.PLAYING) {
+clearTimeout(endTimer);
+
+const duration = player.getDuration();
+
+if (duration > 0) {
+endTimer = setTimeout(() => {
+if (player.getPlayerState() === YT.PlayerState.PLAYING) {
+nextVideo();
 }
-});
+}, duration * 1000 + 1000);
 }
+}
+
+if (event.data === YT.PlayerState.ENDED) {
+clearTimeout(endTimer);
+nextVideo();
+}
+
+}
+}
+
 
 /* =========================
 AUDIO FIX
