@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <title>TVITA2000</title>
 
-<!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-C4GRTQTN1L"></script>
 <script>
 window.dataLayer = window.dataLayer || [];
@@ -44,44 +43,46 @@ cursor: pointer;
 }
 
 /* =========================
-TV STABLE SYSTEM (SIMPLIFIED RELATIVE)
+TV STABLE CANVAS SYSTEM (REAL FIX)
 ========================= */
 
-/* WRAPPER CENTRATO */
+/* CENTRATORE SCHERMO */
 #tvWrapper {
 position: absolute;
-width: 100%;
-height: 100%;
+inset: 0;
 display: flex;
 justify-content: center;
 align-items: center;
 }
 
-/* TV SYSTEM BASE */
+/* CANVAS TV RESPONSIVO */
 #tv {
 position: relative;
-width: min(1920px, 100vw);
-height: calc(min(1920px, 100vw) * 0.5625);
+
+/* base ratio 16:9 sempre stabile */
+width: min(92vw, calc(92vh * (16 / 9)));
+height: calc(min(92vw, calc(92vh * (16 / 9))) * (9 / 16));
+
 }
 
-/* SCHERMO (FIXED LOGIC WITHOUT PX OFFSETS) */
+/* AREA SCHERMO (proporzione interna stabile) */
 #tvScreen {
 position: absolute;
 
-/* CENTRATO MATEMATICAMENTE */
+/* centro matematico stabile */
 left: 50%;
 top: 50%;
 transform: translate(-50%, -50%);
 
-/* proporzione interna corretta (16:9 derivata da 1408x792) */
-width: 73.333vw;
-height: calc(73.333vw * 0.5625);
+/* questo è il “viewport TV interno” */
+width: 73%;
+height: 73%;
 
 overflow: hidden;
 z-index: 1;
 }
 
-/* PLAYER FORZATO FULL FIT */
+/* PLAYER FIT PERFETTO */
 #tvScreen iframe,
 #tvScreen > div {
 width: 100% !important;
@@ -113,10 +114,7 @@ padding: 10px 20px;
 cursor: pointer;
 }
 
-/* =========================
-POPUP (UNCHANGED)
-========================= */
-
+/* POPUP (UNCHANGED) */
 #popupOverlay {
 position: fixed;
 top: 0;
@@ -154,28 +152,6 @@ font-size: 13px;
 line-height: 1.4;
 }
 
-#popupContent h1 {
-font-size: 16px;
-margin-bottom: 10px;
-color: white;
-}
-
-#popupContent p {
-margin: 8px 0;
-opacity: 0.95;
-}
-
-#popupContent hr {
-border: none;
-border-top: 1px solid rgba(255,255,255,0.08);
-margin: 10px 0;
-}
-
-.credits {
-font-size: 12px;
-opacity: 0.7;
-}
-
 #popupStartBtn {
 margin-top: 12px;
 width: 100%;
@@ -197,21 +173,13 @@ background: #2D7DFF;
 
 <body>
 
-<!-- POPUP -->
 <div id="popupOverlay">
 <div id="popupBox">
 <div id="popupHeader">Zapping2000</div>
 <div id="popupContent">
 
 <h1>Benvenuto su Zapping2000</h1>
-
-<p>Questa è una macchina del tempo televisiva, pensata per riportarti direttamente agli anni 2000.</p>
-
-<hr>
-
-<p>Qui troverai cartoni, serie TV, pubblicità, varietà e spezzoni tra il 2002 e il 2012.</p>
-
-<p class="credits">Ispirato da MyRetroTVs.com</p>
+<p>Questa è una macchina del tempo televisiva.</p>
 
 <button id="popupStartBtn">START TV</button>
 
@@ -219,26 +187,19 @@ background: #2D7DFF;
 </div>
 </div>
 
-<!-- START -->
 <div id="startScreen">
 <h1>TVITA2000</h1>
 <button id="startBtn">START TV</button>
 </div>
 
-<!-- TV SYSTEM -->
 <div id="tvWrapper">
-
 <div id="tv">
-
 <div id="tvScreen">
 <div id="player"></div>
 </div>
-
+</div>
 </div>
 
-</div>
-
-<!-- CONTROLS -->
 <div id="controls">
 <button id="skipBtn">Cambia Canale</button>
 </div>
@@ -255,7 +216,6 @@ let playerReady = false;
 
 const API_URL = "https://script.google.com/macros/s/AKfycbys6e7t9KEClY9bscGjAW1L0I5fZgpriDy9IRhp4fbh4k5pXWg-RzY0CtkFb50IvAAR/exec";
 
-/* YOUTUBE */
 function onYouTubeIframeAPIReady() {
 player = new YT.Player("player", {
 height: "100%",
@@ -268,9 +228,7 @@ rel: 0,
 playsinline: 1
 },
 events: {
-onReady: () => {
-playerReady = true;
-},
+onReady: () => playerReady = true,
 onStateChange: (event) => {
 if (!playerReady || !isStarted) return;
 if (event.data === YT.PlayerState.ENDED) nextVideo();
@@ -279,7 +237,6 @@ if (event.data === YT.PlayerState.ENDED) nextVideo();
 });
 }
 
-/* START */
 document.getElementById("popupStartBtn").addEventListener("click", () => {
 document.getElementById("popupOverlay").style.display = "none";
 document.getElementById("startScreen").style.display = "none";
@@ -292,12 +249,10 @@ if (playlist.length && playerReady) nextVideo();
 }, 800);
 });
 
-/* SKIP */
 document.getElementById("skipBtn").addEventListener("click", () => {
 nextVideo();
 });
 
-/* RANDOM VIDEO */
 function getRandomVideo() {
 if (!playlist.length) return null;
 
@@ -318,7 +273,6 @@ if (recentVideos.length > MAX_HISTORY) recentVideos.shift();
 return video;
 }
 
-/* LOAD */
 function loadVideo(video) {
 if (!video) return;
 
@@ -330,7 +284,6 @@ if (!id) return;
 player.loadVideoById(id);
 }
 
-/* NEXT */
 function nextVideo() {
 if (!isStarted) return;
 const video = getRandomVideo();
@@ -338,7 +291,6 @@ if (!video) return;
 loadVideo(video);
 }
 
-/* FETCH */
 fetch(API_URL)
 .then(r => r.json())
 .then(data => playlist = data || [])
