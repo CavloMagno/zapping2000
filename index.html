@@ -43,7 +43,7 @@ cursor: pointer;
 }
 
 /* =========================
-TV STABLE CANVAS SYSTEM (REAL FIX)
+TV STABLE CANVAS SYSTEM
 ========================= */
 
 #tvWrapper {
@@ -60,7 +60,6 @@ width: min(92vw, calc(92vh * (16 / 9)));
 height: calc(min(92vw, calc(92vh * (16 / 9))) * (9 / 16));
 }
 
-/* 🔧 FIX Y OFFSET */
 #tvScreen {
 position: absolute;
 left: 50%;
@@ -89,22 +88,38 @@ display: none;
 background: black;
 }
 
-#controls {
+/* =========================
+UI LAYER (NEW)
+========================= */
+
+#uiLayer {
 position: absolute;
-bottom: 20px;
-left: 20px;
-z-index: 20;
+inset: 0;
+z-index: 10;
+pointer-events: none;
 }
 
-#skipBtn {
-padding: 10px 20px;
+/* pulsanti devono essere cliccabili */
+.uiButton {
+position: absolute;
+pointer-events: auto;
 cursor: pointer;
 }
 
-/* =========================
-POPUP (FULL RESTORE)
-========================= */
+/* CANALE (DESTRA, BASSO) */
+#skipBtn {
+right: 6%;
+bottom: 8%;
+width: 220px;
+height: auto;
+}
 
+/* CONTROLS (vecchio bottone nascosto/non usato) */
+#controls {
+display: none;
+}
+
+/* POPUP */
 #popupOverlay {
 position: fixed;
 top: 0;
@@ -157,40 +172,20 @@ font-size: 14px;
 background: #2D7DFF;
 }
 
-/* =========================
-TV FRAME OVERLAY (ADDED ONLY)
-========================= */
-
-#tvFrame {
-position: absolute;
-inset: 0;
-width: 100%;
-height: 100%;
-z-index: 5;
-pointer-events: none;
-}
-
 </style>
 
 </head>
 
 <body>
 
+<!-- POPUP -->
 <div id="popupOverlay">
 <div id="popupBox">
 <div id="popupHeader">Zapping2000</div>
 <div id="popupContent">
 
 <h1>Benvenuto su Zapping2000</h1>
-<p>Questa è una macchina del tempo televisiva, pensata per riportarti direttamente agli anni 2000.</p>
-
-<hr>
-
-<p>Qui troverai cartoni, serie TV, pubblicità, varietà e spezzoni tra il 2002 e il 2012.</p>
-
-<p>Su mobile ruota il telefono in orizzontale.</p>
-
-<p class="credits">Ispirato da MyRetroTVs.com</p>
+<p>Questa è una macchina del tempo televisiva.</p>
 
 <button id="popupStartBtn">START TV</button>
 
@@ -198,24 +193,26 @@ pointer-events: none;
 </div>
 </div>
 
+<!-- START -->
 <div id="startScreen">
 <h1>TVITA2000</h1>
 <button id="startBtn">START TV</button>
 </div>
 
+<!-- TV -->
 <div id="tvWrapper">
 <div id="tv">
 <div id="tvScreen">
 <div id="player"></div>
 </div>
-
-<img id="tvFrame" src="assets/tv-frame.png">
-
 </div>
 </div>
 
-<div id="controls">
-<button id="skipBtn">Cambia Canale</button>
+<!-- UI LAYER -->
+<div id="uiLayer">
+
+<img id="skipBtn" class="uiButton" src="assets/btn-skip.png">
+
 </div>
 
 <script>
@@ -261,10 +258,6 @@ isStarted = true;
 setTimeout(() => {
 if (playlist.length && playerReady) nextVideo();
 }, 800);
-});
-
-document.getElementById("skipBtn").addEventListener("click", () => {
-nextVideo();
 });
 
 function getRandomVideo() {
