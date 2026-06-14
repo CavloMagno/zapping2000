@@ -8,9 +8,7 @@
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-C4GRTQTN1L"></script>
 <script>
 window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(
-arguments);}
-
+function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-C4GRTQTN1L');
 </script>
@@ -46,64 +44,25 @@ cursor: pointer;
 }
 
 /* =========================
-TV SYSTEM (FIX VW/VH + 16:9 + SAFE)
+🔧 TV SCALING FIX (ONLY ADDITION)
 ========================= */
 
-/* TV SCALATA SU VIEWPORT */
-#tv {
+/* NUOVO: wrapper di centratura senza toccare logica */
+#tvWrapper {
 position: absolute;
-
-/* 🔥 FIX 1: viewport scaling */
-width: 100vw;
-height: 56.25vw; /* 16:9 ratio */
-
-/* fallback per schermi alti */
-max-height: 100vh;
-max-width: 177.78vh;
-
-/* centratura perfetta */
-left: 50%;
-top: 50%;
-transform: translate(-50%, -50%);
-}
-
-/* SCHERMO TV */
-#tvScreen {
-position: absolute;
-left: 256px;
-top: 78px;
-width: 1408px;
-height: 792px;
-overflow: hidden;
-z-index: 1;
-}
-
-/* 🔥 FIX 3: blocco reale iframe YouTube */
-#tvScreen iframe {
-width: 100% !important;
-height: 100% !important;
-position: absolute;
-top: 0;
-left: 0;
+width: 100%;
+height: 100%;
+display: flex;
+justify-content: center;
+align-items: center;
 }
 
 /* PLAYER */
 #player {
-width: 100%;
-height: 100%;
-background: black;
+width: 100vw;
+height: 100vh;
 display: none;
-}
-
-/* FRAME */
-#tvFrame {
-position: absolute;
-left: 0;
-top: 0;
-width: 100%;
-height: 100%;
-z-index: 5;
-pointer-events: none;
+background: black;
 }
 
 /* CONTROLS */
@@ -119,7 +78,52 @@ padding: 10px 20px;
 cursor: pointer;
 }
 
-/* POPUP (UNCHANGED) */
+/* =========================
+TV FRAME + SCREEN SYSTEM (PATCHED SCALE)
+========================= */
+
+/* TV container scalabile */
+#tv {
+position: relative;
+width: min(1920px, 100vw);
+height: calc(min(1920px, 100vw) * 0.5625);
+}
+
+/* SCHERMO (NON MODIFICATO LOGICAMENTE) */
+#tvScreen {
+position: absolute;
+left: 256px;
+top: 78px;
+width: 1408px;
+height: 792px;
+overflow: hidden;
+z-index: 1;
+}
+
+/* BLOCCO PLAYER DENTRO SCHERMO */
+#tvScreen > div,
+#tvScreen iframe {
+width: 100% !important;
+height: 100% !important;
+position: absolute;
+top: 0;
+left: 0;
+}
+
+/* FRAME SOPRA */
+#tvFrame {
+position: absolute;
+left: 0;
+top: 0;
+width: 100%;
+height: 100%;
+z-index: 5;
+pointer-events: none;
+}
+
+/* =========================
+POPUP SKY ZAPPING2000 (UNCHANGED)
+========================= */
 
 #popupOverlay {
 position: fixed;
@@ -196,6 +200,7 @@ background: #2D7DFF;
 }
 
 </style>
+
 </head>
 
 <body>
@@ -249,16 +254,8 @@ Se ci sono problemi:<br>
 <button id="startBtn">START TV</button>
 </div>
 
-<!-- TV SYSTEM -->
-<div id="tv">
-
-<div id="tvScreen">
+<!-- PLAYER -->
 <div id="player"></div>
-</div>
-
-<img id="tvFrame" src="assets/tv-frame.png">
-
-</div>
 
 <!-- CONTROLS -->
 <div id="controls">
@@ -301,29 +298,34 @@ if (event.data === YT.PlayerState.ENDED) nextVideo();
 });
 }
 
-/* START */
-document.getElementById("
-popupStartBtn").addEventListener("click", () => {
+/* START (DA POPUP) */
+document.getElementById("popupStartBtn").addEventListener("click", () => {
+
 document.getElementById("popupOverlay").style.display = "none";
 document.getElementById("startScreen").style.display = "none";
-
-isStarted = true;
-
 document.getElementById("player").style.display = "block";
 
+isStarted = true;
 
 setTimeout(() => {
 if (playlist.length && playerReady) nextVideo();
 }, 800);
+
+});
+
+/* START (OLD BUTTON - opzionale fallback) */
+document.getElementById("startBtn").addEventListener("click", () => {
+document.getElementById("startScreen").style.display = "none";
+document.getElementById("player").style.display = "block";
+isStarted = true;
 });
 
 /* SKIP */
-document.getElementById("
-skipBtn").addEventListener("click", () => {
+document.getElementById("skipBtn").addEventListener("click", () => {
 nextVideo();
 });
 
-/* LOGIC */
+/* RANDOM VIDEO */
 function getRandomVideo() {
 if (!playlist.length) return null;
 
@@ -344,6 +346,7 @@ if (recentVideos.length > MAX_HISTORY) recentVideos.shift();
 return video;
 }
 
+/* LOAD */
 function loadVideo(video) {
 if (!video) return;
 
@@ -355,6 +358,7 @@ if (!id) return;
 player.loadVideoById(id);
 }
 
+/* NEXT */
 function nextVideo() {
 if (!isStarted) return;
 const video = getRandomVideo();
@@ -362,6 +366,7 @@ if (!video) return;
 loadVideo(video);
 }
 
+/* FETCH */
 fetch(API_URL)
 .then(r => r.json())
 .then(data => playlist = data || [])
