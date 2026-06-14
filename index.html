@@ -46,19 +46,28 @@ cursor: pointer;
 }
 
 /* =========================
-TV SYSTEM (PATCH MODE B)
+TV SYSTEM (FIX VW/VH + 16:9 + SAFE)
 ========================= */
 
+/* TV SCALATA SU VIEWPORT */
 #tv {
 position: absolute;
-width: 1920px;
-height: 1080px;
+
+/* 🔥 FIX 1: viewport scaling */
+width: 100vw;
+height: 56.25vw; /* 16:9 ratio */
+
+/* fallback per schermi alti */
+max-height: 100vh;
+max-width: 177.78vh;
+
+/* centratura perfetta */
 left: 50%;
 top: 50%;
 transform: translate(-50%, -50%);
 }
 
-/* NUOVO: AREA SCHERMO TV */
+/* SCHERMO TV */
 #tvScreen {
 position: absolute;
 left: 256px;
@@ -69,7 +78,16 @@ overflow: hidden;
 z-index: 1;
 }
 
-/* PLAYER dentro schermo */
+/* 🔥 FIX 3: blocco reale iframe YouTube */
+#tvScreen iframe {
+width: 100% !important;
+height: 100% !important;
+position: absolute;
+top: 0;
+left: 0;
+}
+
+/* PLAYER */
 #player {
 width: 100%;
 height: 100%;
@@ -77,13 +95,13 @@ background: black;
 display: none;
 }
 
-/* FRAME sopra tutto */
+/* FRAME */
 #tvFrame {
 position: absolute;
 left: 0;
 top: 0;
-width: 1920px;
-height: 1080px;
+width: 100%;
+height: 100%;
 z-index: 5;
 pointer-events: none;
 }
@@ -101,9 +119,7 @@ padding: 10px 20px;
 cursor: pointer;
 }
 
-/* =========================
-POPUP SKY ZAPPING2000
-========================= */
+/* POPUP (UNCHANGED) */
 
 #popupOverlay {
 position: fixed;
@@ -180,7 +196,6 @@ background: #2D7DFF;
 }
 
 </style>
-
 </head>
 
 <body>
@@ -287,7 +302,8 @@ if (event.data === YT.PlayerState.ENDED) nextVideo();
 }
 
 /* START */
-document.getElementById("popupStartBtn").addEventListener("click", () => {
+document.getElementById("
+popupStartBtn").addEventListener("click", () => {
 document.getElementById("popupOverlay").style.display = "none";
 document.getElementById("startScreen").style.display = "none";
 
@@ -295,17 +311,19 @@ isStarted = true;
 
 document.getElementById("player").style.display = "block";
 
+
 setTimeout(() => {
 if (playlist.length && playerReady) nextVideo();
 }, 800);
 });
 
 /* SKIP */
-document.getElementById("skipBtn").addEventListener("click", () => {
+document.getElementById("
+skipBtn").addEventListener("click", () => {
 nextVideo();
 });
 
-/* RANDOM VIDEO */
+/* LOGIC */
 function getRandomVideo() {
 if (!playlist.length) return null;
 
@@ -318,7 +336,7 @@ recentVideos = [];
 filtered = playlist;
 }
 
-const video = filtered[Math.floor(Math.random() * filtered.length)];
+const video = filtered[Math.floor(Math.random() * playlist.length)];
 
 recentVideos.push(video.videoUrl);
 if (recentVideos.length > MAX_HISTORY) recentVideos.shift();
@@ -326,7 +344,6 @@ if (recentVideos.length > MAX_HISTORY) recentVideos.shift();
 return video;
 }
 
-/* LOAD */
 function loadVideo(video) {
 if (!video) return;
 
@@ -338,7 +355,6 @@ if (!id) return;
 player.loadVideoById(id);
 }
 
-/* NEXT */
 function nextVideo() {
 if (!isStarted) return;
 const video = getRandomVideo();
@@ -346,7 +362,6 @@ if (!video) return;
 loadVideo(video);
 }
 
-/* FETCH */
 fetch(API_URL)
 .then(r => r.json())
 .then(data => playlist = data || [])
