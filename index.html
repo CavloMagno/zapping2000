@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <title>TVITA2000</title>
 
-<!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-C4GRTQTN1L"></script>
 <script>
 window.dataLayer = window.dataLayer || [];
@@ -21,6 +20,47 @@ margin: 0;
 background: black;
 font-family: Arial, sans-serif;
 overflow: hidden;
+}
+
+/* =========================
+TV CONTAINER (NUOVO SISTEMA)
+========================= */
+
+#tvContainer {
+position: absolute;
+width: 100vw;
+height: 100vh;
+display: flex;
+justify-content: center;
+align-items: center;
+}
+
+/* SCHERMO TV (VIDEO AREA) */
+#player {
+position: absolute;
+width: 1408px;
+height: 792px;
+background: black;
+z-index: 1;
+display: none;
+}
+
+/* TV FRAME */
+#tvFrame {
+position: absolute;
+width: 100vw;
+height: 100vh;
+z-index: 5;
+pointer-events: none;
+display: flex;
+justify-content: center;
+align-items: center;
+}
+
+#tvFrame img {
+width: 100%;
+height: 100%;
+object-fit: contain;
 }
 
 /* START SCREEN */
@@ -43,31 +83,7 @@ font-size: 20px;
 cursor: pointer;
 }
 
-/* PLAYER */
-#player {
-width: 100vw;
-height: 100vh;
-display: none;
-background: black;
-}
-
-/* CONTROLS */
-#controls {
-position: absolute;
-bottom: 20px;
-left: 20px;
-z-index: 20;
-}
-
-#skipBtn {
-padding: 10px 20px;
-cursor: pointer;
-}
-
-/* =========================
-POPUP SKY ZAPPING2000
-========================= */
-
+/* POPUP */
 #popupOverlay {
 position: fixed;
 top: 0;
@@ -85,61 +101,42 @@ z-index: 999;
 width: 80%;
 max-width: 420px;
 background: #0B0F1A;
-border: 1px solid rgba(45,125,255,0.25);
 color: #E6E6E6;
-box-shadow: 0 0 20px rgba(30,91,198,0.25);
-font-family: Arial, sans-serif;
+border: 1px solid rgba(45,125,255,0.25);
 }
 
-#popupHeader {
-background: #0A3D91;
-color: white;
-padding: 10px;
-font-weight: bold;
-font-size: 14px;
-}
-
-#popupContent {
-padding: 18px;
-font-size: 13px;
-line-height: 1.4;
-}
-
-#popupContent h1 {
-font-size: 16px;
-margin-bottom: 10px;
-color: white;
-}
-
-#popupContent p {
-margin: 8px 0;
-opacity: 0.95;
-}
-
-#popupContent hr {
-border: none;
-border-top: 1px solid rgba(255,255,255,0.08);
-margin: 10px 0;
-}
-
-.credits {
-font-size: 12px;
-opacity: 0.7;
-}
-
-#popupStartBtn {
-margin-top: 12px;
+/* CONTROLS (PNG LAYER) */
+#controls {
+position: absolute;
 width: 100%;
-padding: 12px;
-background: #1E5BC6;
-color: white;
-border: none;
-cursor: pointer;
-font-size: 14px;
+height: 100%;
+z-index: 20;
+pointer-events: none;
 }
 
-#popupStartBtn:hover {
-background: #2D7DFF;
+/* START BTN PNG */
+#popupStartBtn {
+position: absolute;
+bottom: 12%;
+left: 22%;
+width: 140px;
+cursor: pointer;
+pointer-events: auto;
+}
+
+/* SKIP BTN PNG */
+#skipBtn {
+position: absolute;
+bottom: 12%;
+right: 20%;
+width: 260px;
+cursor: pointer;
+pointer-events: auto;
+}
+
+/* START TEXT BUTTON FALLBACK */
+#startBtn {
+z-index: 30;
 }
 
 </style>
@@ -148,61 +145,50 @@ background: #2D7DFF;
 
 <body>
 
-<!-- POPUP -->
-<div id="popupOverlay">
+<!-- TV SYSTEM -->
+<div id="tvContainer">
 
-<div id="popupBox">
+<!-- VIDEO -->
+<div id="player"></div>
 
-<div id="popupHeader">
-Zapping2000
+<!-- FRAME -->
+<div id="tvFrame">
+<img src="assets/tv-frame.png">
 </div>
 
-<div id="popupContent">
+</div>
 
-<h1>Benvenuto su Zapping2000</h1>
+<!-- POPUP -->
+<div id="popupOverlay">
+<div id="popupBox">
 
-<p>Questa è una macchina del tempo televisiva, pensata per riportarti direttamente agli anni 2000.</p>
+<h2>Zapping2000</h2>
 
-<p>Questa è una versione iniziale del progetto, attualmente in fase di sviluppo.</p>
-
-<hr>
-
-<p>Qui troverai cartoni, serie TV, pubblicità, varietà e spezzoni tra il 2002 e il 2012.</p>
-
-<hr>
-
-<p>
-Se ci sono problemi:<br>
-• usa “Cambia Canale”<br>
-• oppure ricarica la pagina
-</p>
-
-<p>Su mobile ruota il telefono in orizzontale.</p>
+<p>Macchina del tempo televisiva anni 2000.</p>
+<p>Versione alpha in sviluppo.</p>
 
 <hr>
 
-<p class="credits">Ispirato da MyRetroTVs.com</p>
+<p>Cartoni, serie TV, pubblicità 2002–2012.</p>
+
+<p>Ispirato da MyRetroTVs.com</p>
 
 <button id="popupStartBtn">START TV</button>
 
 </div>
-
 </div>
 
-</div>
-
-<!-- START -->
+<!-- START SCREEN -->
 <div id="startScreen">
 <h1>TVITA2000</h1>
 <button id="startBtn">START TV</button>
 </div>
 
-<!-- PLAYER -->
-<div id="player"></div>
-
-<!-- CONTROLS -->
+<!-- CONTROLS PNG OVERLAY -->
 <div id="controls">
-<button id="skipBtn">Cambia Canale</button>
+
+<img id="skipBtn" src="assets/skip.png">
+
 </div>
 
 <script>
@@ -230,9 +216,7 @@ rel: 0,
 playsinline: 1
 },
 events: {
-onReady: () => {
-playerReady = true;
-},
+onReady: () => playerReady = true,
 onStateChange: (event) => {
 if (!playerReady || !isStarted) return;
 if (event.data === YT.PlayerState.ENDED) nextVideo();
@@ -241,26 +225,16 @@ if (event.data === YT.PlayerState.ENDED) nextVideo();
 });
 }
 
-/* START (DA POPUP) */
+/* START */
 document.getElementById("popupStartBtn").addEventListener("click", () => {
-
 document.getElementById("popupOverlay").style.display = "none";
 document.getElementById("startScreen").style.display = "none";
 document.getElementById("player").style.display = "block";
-
 isStarted = true;
 
 setTimeout(() => {
 if (playlist.length && playerReady) nextVideo();
 }, 800);
-
-});
-
-/* START (OLD BUTTON - opzionale fallback) */
-document.getElementById("startBtn").addEventListener("click", () => {
-document.getElementById("startScreen").style.display = "none";
-document.getElementById("player").style.display = "block";
-isStarted = true;
 });
 
 /* SKIP */
@@ -268,7 +242,7 @@ document.getElementById("skipBtn").addEventListener("click", () => {
 nextVideo();
 });
 
-/* RANDOM VIDEO */
+/* RANDOM */
 function getRandomVideo() {
 if (!playlist.length) return null;
 
@@ -289,7 +263,6 @@ if (recentVideos.length > MAX_HISTORY) recentVideos.shift();
 return video;
 }
 
-/* LOAD */
 function loadVideo(video) {
 if (!video) return;
 
@@ -301,7 +274,6 @@ if (!id) return;
 player.loadVideoById(id);
 }
 
-/* NEXT */
 function nextVideo() {
 if (!isStarted) return;
 const video = getRandomVideo();
@@ -309,7 +281,6 @@ if (!video) return;
 loadVideo(video);
 }
 
-/* FETCH */
 fetch(API_URL)
 .then(r => r.json())
 .then(data => playlist = data || [])
