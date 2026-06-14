@@ -8,43 +8,9 @@
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-C4GRTQTN1L"></script>
 <script>
 window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('js', new Date());
-gtag('config', 'G-C4GRTQTN1L');
-</script>
-
-<script src="https://www.youtube.com/iframe_api"></script>
-
-<style>
-body {
-margin: 0;
-background: black;
-font-family: Arial, sans-serif;
-overflow: hidden;
-}
-
-/* START SCREEN */
-#startScreen {
-position: absolute;
-width: 100%;
-height: 100%;
-background: black;
-display: flex;
-justify-content: center;
-align-items: center;
-flex-direction: column;
-color: white;
-z-index: 10;
-}
-
-#startBtn {
-padding: 20px 40px;
-font-size: 20px;
-cursor: pointer;
-}
-
-/* =========================
-TV SYSTEM (NUOVO)
+function gtag(){dataLayer.push(
+arguments);}
+TV SYSTEM (PATCH)
 ========================= */
 
 #tv {
@@ -56,7 +22,7 @@ top: 50%;
 transform: translate(-50%, -50%);
 }
 
-/* PLAYER (SCHERMO TV) */
+/* PLAYER (FIX: NO FULLSCREEN) */
 #player {
 position: absolute;
 left: 256px;
@@ -65,17 +31,19 @@ width: 1408px;
 height: 792px;
 display: none;
 background: black;
+z-index: 1;
 }
 
-/* TV FRAME PNG */
+/* TV FRAME OVERLAY */
 #tvFrame {
 position: absolute;
 left: 0;
 top: 0;
 width: 1920px;
 height: 1080px;
-pointer-events: none;
 z-index: 5;
+pointer-events: none;
+display: block;
 }
 
 /* CONTROLS */
@@ -177,8 +145,13 @@ background: #2D7DFF;
 
 <!-- POPUP -->
 <div id="popupOverlay">
+
 <div id="popupBox">
-<div id="popupHeader">Zapping2000</div>
+
+<div id="popupHeader">
+Zapping2000
+</div>
+
 <div id="popupContent">
 
 <h1>Benvenuto su Zapping2000</h1>
@@ -208,7 +181,9 @@ Se ci sono problemi:<br>
 <button id="popupStartBtn">START TV</button>
 
 </div>
+
 </div>
+
 </div>
 
 <!-- START -->
@@ -220,12 +195,9 @@ Se ci sono problemi:<br>
 <!-- TV CONTAINER -->
 <div id="tv">
 
-<!-- PLAYER -->
 <div id="player"></div>
 
-<!-- FRAME -->
-
-<img id="tvFrame" src="assets/tv-frame.png" alt="TV Frame">
+<img id="tvFrame" src="assets/tv-frame.png">
 
 </div>
 
@@ -271,19 +243,24 @@ if (event.data === YT.PlayerState.ENDED) nextVideo();
 }
 
 /* START (DA POPUP) */
-document.getElementById("popupStartBtn").addEventListener("click", () => {
+document.getElementById("
+popupStartBtn").addEventListener("click", () => {
+
 document.getElementById("popupOverlay").style.display = "none";
 document.getElementById("startScreen").style.display = "none";
 document.getElementById("player").style.display = "block";
+
 
 isStarted = true;
 
 setTimeout(() => {
 if (playlist.length && playerReady) nextVideo();
 }, 800);
+
 });
 
-/* START (OLD BUTTON - opzionale fallback) */
+/* START (OLD BUTTON) */
+
 document.getElementById("startBtn").addEventListener("click", () => {
 document.getElementById("startScreen").style.display = "none";
 document.getElementById("player").style.display = "block";
