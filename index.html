@@ -43,12 +43,39 @@ font-size: 20px;
 cursor: pointer;
 }
 
-/* PLAYER */
+/* =========================
+TV SYSTEM (NUOVO)
+========================= */
+
+#tv {
+position: absolute;
+width: 1920px;
+height: 1080px;
+left: 50%;
+top: 50%;
+transform: translate(-50%, -50%);
+}
+
+/* PLAYER (SCHERMO TV) */
 #player {
-width: 100vw;
-height: 100vh;
+position: absolute;
+left: 256px;
+top: 78px;
+width: 1408px;
+height: 792px;
 display: none;
 background: black;
+}
+
+/* TV FRAME PNG */
+#tvFrame {
+position: absolute;
+left: 0;
+top: 0;
+width: 1920px;
+height: 1080px;
+pointer-events: none;
+z-index: 5;
 }
 
 /* CONTROLS */
@@ -150,13 +177,8 @@ background: #2D7DFF;
 
 <!-- POPUP -->
 <div id="popupOverlay">
-
 <div id="popupBox">
-
-<div id="popupHeader">
-Zapping2000
-</div>
-
+<div id="popupHeader">Zapping2000</div>
 <div id="popupContent">
 
 <h1>Benvenuto su Zapping2000</h1>
@@ -186,9 +208,7 @@ Se ci sono problemi:<br>
 <button id="popupStartBtn">START TV</button>
 
 </div>
-
 </div>
-
 </div>
 
 <!-- START -->
@@ -197,8 +217,17 @@ Se ci sono problemi:<br>
 <button id="startBtn">START TV</button>
 </div>
 
+<!-- TV CONTAINER -->
+<div id="tv">
+
 <!-- PLAYER -->
 <div id="player"></div>
+
+<!-- FRAME -->
+
+<img id="tvFrame" src="assets/tv-frame.png" alt="TV Frame">
+
+</div>
 
 <!-- CONTROLS -->
 <div id="controls">
@@ -243,7 +272,6 @@ if (event.data === YT.PlayerState.ENDED) nextVideo();
 
 /* START (DA POPUP) */
 document.getElementById("popupStartBtn").addEventListener("click", () => {
-
 document.getElementById("popupOverlay").style.display = "none";
 document.getElementById("startScreen").style.display = "none";
 document.getElementById("player").style.display = "block";
@@ -253,7 +281,6 @@ isStarted = true;
 setTimeout(() => {
 if (playlist.length && playerReady) nextVideo();
 }, 800);
-
 });
 
 /* START (OLD BUTTON - opzionale fallback) */
