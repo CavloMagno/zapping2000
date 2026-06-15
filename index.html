@@ -91,7 +91,7 @@ background: black;
 }
 
 /* =========================
-TV FRAME (UNCHANGED STRUCTURE)
+TV FRAME (RESTORED)
 ========================= */
 
 #tvFrame {
@@ -121,21 +121,16 @@ z-index: 20;
 pointer-events: auto;
 }
 
-/* =========================
-FIXED SKIP BUTTON (ONLY CHANGE)
-========================= */
-
+/* SKIP BUTTON */
 #skipBtn {
-position: absolute;
-right: calc(50% - min(92vw, calc(92vh * (16 / 9))) * 0.28);
-bottom: calc(50% - (min(92vw, calc(92vh * (16 / 9))) * (9 / 16)) * 0.32);
+right: 8%;
+bottom: 12%;
 width: 200px;
 height: auto;
-transform: translate(50%, 50%);
 }
 
 /* =========================
-POPUP (UNCHANGED)
+POPUP (FULL RESTORE)
 ========================= */
 
 #popupOverlay {
@@ -218,13 +213,22 @@ background: #2D7DFF;
 
 <body>
 
+<!-- POPUP -->
 <div id="popupOverlay">
 <div id="popupBox">
 <div id="popupHeader">Zapping2000</div>
 <div id="popupContent">
 
 <h1>Benvenuto su Zapping2000</h1>
-<p>Questa è una macchina del tempo televisiva.</p>
+<p>Questa è una macchina del tempo televisiva, pensata per riportarti direttamente agli anni 2000.</p>
+
+<hr>
+
+<p>Qui troverai cartoni, serie TV, pubblicità, varietà e spezzoni tra il 2002 e il 2012.</p>
+
+<p>Su mobile ruota il telefono in orizzontale.</p>
+
+<p class="credits">Ispirato da MyRetroTVs.com</p>
 
 <button id="popupStartBtn">START TV</button>
 
@@ -232,19 +236,26 @@ background: #2D7DFF;
 </div>
 </div>
 
+<!-- START -->
 <div id="startScreen">
 <h1>TVITA2000</h1>
 <button id="startBtn">START TV</button>
 </div>
 
+<!-- TV -->
 <div id="tvWrapper">
 <div id="tv">
+
 <div id="tvScreen">
 <div id="player"></div>
 </div>
+
+<img id="tvFrame" src="assets/tv-frame.png">
+
 </div>
 </div>
 
+<!-- UI -->
 <div id="uiLayer">
 <img id="skipBtn" class="uiButton" src="assets/btn-skip.png">
 </div>
